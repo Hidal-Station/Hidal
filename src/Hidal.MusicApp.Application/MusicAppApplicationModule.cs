@@ -1,4 +1,4 @@
-﻿using Volo.Abp.Account;
+using Volo.Abp.Account;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.Database;
@@ -9,10 +9,12 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
+using Volo.Abp.BlobStoring.FileSystem;
 
 namespace Hidal.MusicApp;
 
 [DependsOn(
+    typeof(AbpBlobStoringFileSystemModule),
     typeof(BlobStoringDatabaseEntityFrameworkCoreModule),
     typeof(MusicAppDomainModule),
     typeof(AbpAccountApplicationModule),
@@ -23,7 +25,8 @@ namespace Hidal.MusicApp;
     typeof(AbpFeatureManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule)
     )]
-public class MusicAppApplicationModule : AbpModule
+[DependsOn(typeof(AbpBlobStoringFileSystemModule))]
+    public class MusicAppApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
@@ -35,7 +38,10 @@ public class MusicAppApplicationModule : AbpModule
         {
             options.Containers.ConfigureDefault(container =>
             {
-            container.UseDatabase();
+                container.UseFileSystem(fileSystem =>
+                {
+                    fileSystem.BasePath = "wwwroot/UploadFile";
+                });
             });
         });
     }

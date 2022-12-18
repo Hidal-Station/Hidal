@@ -1,4 +1,6 @@
 using Hidal.MusicApp.Authors.Dtos;
+using Hidal.MusicApp.ImageAppService.Dtos;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

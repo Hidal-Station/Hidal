@@ -14,7 +14,6 @@ using Volo.Abp.Modularity;
 
 namespace Hidal.MusicApp.DbMigrator.PerformanceMusics
 {
-    [DependsOn(typeof(BlobStoringDatabaseDomainModule))]
     public class PerformanceMusic : FullAuditedAggregateRoot<Guid>
     {
         public string Description { get; set; }

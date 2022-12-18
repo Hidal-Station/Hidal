@@ -4,6 +4,12 @@ using Volo.Abp.Application.Services;
 using Hidal.MusicApp.DbMigrator.Authors;
 using Hidal.MusicApp.Authors.Dtos;
 using Volo.Abp.Domain.Repositories;
+using System.Threading.Tasks;
+using Hidal.MusicApp.ImageAppService.Dtos;
+using Microsoft.AspNetCore.Http;
+using Hidal.MusicApp.ImageAppService;
+using Hidal.MusicApp.ImageStoreService;
+using Hidal.MusicApp.PerformanceMusics;
 
 namespace Hidal.MusicApp.Authors
 {
@@ -16,9 +22,15 @@ namespace Hidal.MusicApp.Authors
             CreateUpdateAuthorDto
             >, IAuthorAppService
     {
-
-        public AuthorAppService(IRepository<Author, Guid> repository) : base(repository)
+        private readonly IPerformanceMusicAppService _performanceMusicApp;
+        public AuthorAppService(IAuthorRepository repository, IPerformanceMusicAppService performanceMusicAppService) : base(repository)
         {
+            _performanceMusicApp = performanceMusicAppService;
+        }
+
+        public async Task<CreateUpdateImageStoreDto> uploadTest(IFormFile file)
+        {
+            return await _performanceMusicApp.UploadPerformanceMusicFileAsync(file);
         }
     }
 }
