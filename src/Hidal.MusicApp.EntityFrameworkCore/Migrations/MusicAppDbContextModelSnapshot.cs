@@ -367,9 +367,6 @@ namespace Hidal.MusicApp.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
 
-                    b.Property<DateTime>("DebutDay")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid?>("DeleterId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("DeleterId");
@@ -377,10 +374,6 @@ namespace Hidal.MusicApp.Migrations
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("datetime2")
                         .HasColumnName("DeletionTime");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("nvarchar(max)")
@@ -410,8 +403,12 @@ namespace Hidal.MusicApp.Migrations
                     b.Property<Guid>("SingerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SongId")
+                    b.Property<Guid?>("SongId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SongName")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.HasKey("Id");
 
@@ -454,7 +451,6 @@ namespace Hidal.MusicApp.Migrations
                         .HasColumnName("ExtraProperties");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -520,7 +516,6 @@ namespace Hidal.MusicApp.Migrations
                         .HasColumnName("DeletionTime");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
@@ -2117,30 +2112,22 @@ namespace Hidal.MusicApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Hidal.MusicApp.DbMigrator.Songs.Song", "Song")
+                    b.HasOne("Hidal.MusicApp.DbMigrator.Songs.Song", null)
                         .WithMany("PerformanceMusics")
-                        .HasForeignKey("SongId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SongId");
 
                     b.Navigation("Singer");
-
-                    b.Navigation("Song");
                 });
 
             modelBuilder.Entity("Hidal.MusicApp.DbMigrator.Songs.Song", b =>
                 {
                     b.HasOne("Hidal.MusicApp.DbMigrator.Authors.Author", "Author")
                         .WithMany("Songs")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AuthorId");
 
                     b.HasOne("Hidal.MusicApp.DbMigrator.Categories.Category", "Category")
                         .WithMany("Songs")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.Navigation("Author");
 

@@ -120,7 +120,7 @@ public class MusicAppDbContext :
         builder.Entity<Singer>(b =>
         {
             b.ToTable(MusicAppConsts.DbTablePrefix + "Singers", MusicAppConsts.DbSchema);
-            b.Property(x => x.Image).IsRequired(true).HasMaxLength(50);
+            b.Property(x => x.Image).IsRequired(false).HasMaxLength(50);
             b.Property(x => x.Name).IsRequired(true).HasMaxLength(50);
             b.Property(x => x.Story).IsRequired(false).HasMaxLength(300);
             b.ConfigureByConvention();
@@ -140,10 +140,10 @@ public class MusicAppDbContext :
         builder.Entity<Song>(b =>
         {
             b.ToTable(MusicAppConsts.DbTablePrefix + "Songs", MusicAppConsts.DbSchema);
-            b.Property(x => x.Description).IsRequired(true).HasMaxLength(250);
+            b.Property(x => x.Description).IsRequired(false).HasMaxLength(250);
             b.Property(x => x.Name).IsRequired(true).HasMaxLength(50);
-            b.HasOne(t => t.Author).WithMany(l => l.Songs).HasForeignKey(k => k.AuthorId);
-            b.HasOne(t => t.Category).WithMany(l => l.Songs).HasForeignKey(k => k.CategoryId);
+            b.HasOne(t => t.Author).WithMany(l => l.Songs).HasForeignKey(k => k.AuthorId).IsRequired(false);
+            b.HasOne(t => t.Category).WithMany(l => l.Songs).HasForeignKey(k => k.CategoryId).IsRequired(false);
             b.ConfigureByConvention();
         });
 
@@ -169,12 +169,10 @@ public class MusicAppDbContext :
         builder.Entity<PerformanceMusic>(b =>
         {
             b.ToTable(MusicAppConsts.DbTablePrefix + "PerformanceMusics", MusicAppConsts.DbSchema);
-            b.Property(x => x.Description).IsRequired(false).HasMaxLength(300);
+            b.Property(x => x.SongName).IsRequired(false).HasMaxLength(300);
             b.Property(x => x.Image).IsRequired(false).HasMaxLength(50);
             b.Property(x => x.MusicFile).IsRequired(false);
-            b.Property(x => x.DebutDay).IsRequired(true);
             b.HasOne(t => t.Singer).WithMany(l => l.PerformanceMusics).HasForeignKey(k => k.SingerId);
-            b.HasOne(t => t.Song).WithMany(l => l.PerformanceMusics).HasForeignKey(k => k.SongId);
             b.ConfigureByConvention();
         });
 

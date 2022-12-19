@@ -8,8 +8,9 @@ namespace Hidal.MusicApp.PerformanceMusics.Dtos
     public class PerformanceMusicDto : FullAuditedEntityDto<Guid>
     {
 
-        public string Description { get; set; }
+        public string SongName { get; set; }
         public string Image { get; set; }
+        public string SingerName { get; set; }
         public string MusicFile { get; set; }
     }
 }
