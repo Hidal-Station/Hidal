@@ -23,5 +23,7 @@ namespace Hidal.MusicApp.PerformanceMusics
         Task<CreateUpdateImageStoreDto> UploadPerformanceMusicMainFileAsync(IFormFile data);
 
         Task<List<PerformanceMusicDto>> GetMusicAsync();
+
+        void ViewMusicAsync(Guid id);
     }
 }

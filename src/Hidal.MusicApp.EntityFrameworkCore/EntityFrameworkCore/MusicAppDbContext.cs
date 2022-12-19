@@ -170,6 +170,7 @@ public class MusicAppDbContext :
         {
             b.ToTable(MusicAppConsts.DbTablePrefix + "PerformanceMusics", MusicAppConsts.DbSchema);
             b.Property(x => x.SongName).IsRequired(false).HasMaxLength(300);
+            b.Property(x => x.Viewed).IsRequired(true).HasDefaultValue(0);
             b.Property(x => x.Image).IsRequired(false).HasMaxLength(50);
             b.Property(x => x.MusicFile).IsRequired(false);
             b.HasOne(t => t.Singer).WithMany(l => l.PerformanceMusics).HasForeignKey(k => k.SingerId);

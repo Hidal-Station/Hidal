@@ -52,8 +52,6 @@ namespace Hidal.MusicApp.PerformanceMusics
             var listMusic = await query.Include(x => x.Singer).ToListAsync();
             var listMusic1 = ObjectMapper.Map<List<PerformanceMusic>, List<PerformanceMusicDto>>(listMusic);
             return ObjectMapper.Map<List<PerformanceMusic>,List<PerformanceMusicDto>>(listMusic);
-
-
         }
 
         public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile file)
@@ -64,28 +62,11 @@ namespace Hidal.MusicApp.PerformanceMusics
                 string fileType = arrFile[arrFile.Length - 1];
                 var fileName = Path.GetFileNameWithoutExtension(file.FileName);
                 int distance = 0;
-                int end = 0;
-                string fileName1 = fileName;
-                string fileName2 = fileName;
                 string songName = "";
                 string singerName = "";
-
-                for (int i =0; i < fileName1.Length; i++)
-                {
-                    if (fileName[i] == '-')
-                    {
-                        distance = i;
-                        continue;
-                    }
-                    if(fileName[i] == '.')
-                    {
-                        end = i;
-                        break;
-                    }
-                }
-                songName = fileName1.Substring(0, distance);
-                singerName = fileName1.Substring(end + 1);
-
+                distance = fileName.IndexOf("-");
+                songName = fileName.Remove(distance);
+                singerName = fileName.Remove(0, distance + 1);
 
                 CreateUpdateImageStoreDto newItem = new CreateUpdateImageStoreDto();
                 newItem.FileName = file.FileName;
@@ -123,6 +104,22 @@ namespace Hidal.MusicApp.PerformanceMusics
             performance.SongName = ImageStoreDto.SongName;
             await _performanceMusicRepository.InsertAsync(performance);
             return ImageStoreDto;
+        }
+
+        public async void UploadViewPerformanceMusicAsync(Guid id)
+        {
+            var performanceMusic = await _performanceMusicRepository.GetAsync(id);
+            if (performanceMusic == null)
+            {
+                throw new BusinessException("Error");
+            }
+            performanceMusic.Viewed += 1;
+            await _performanceMusicRepository.UpdateAsync(performanceMusic);
+        }
+
+        public void ViewMusicAsync(Guid id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

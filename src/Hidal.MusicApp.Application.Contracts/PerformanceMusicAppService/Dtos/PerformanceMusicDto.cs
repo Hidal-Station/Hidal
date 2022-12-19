@@ -12,5 +12,7 @@ namespace Hidal.MusicApp.PerformanceMusics.Dtos
         public string Image { get; set; }
         public string SingerName { get; set; }
         public string MusicFile { get; set; }
+
+        public int Viewed { get; set; }
     }
 }
