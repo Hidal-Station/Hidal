@@ -19,7 +19,7 @@ namespace Hidal.MusicApp.DbMigrator.PerformanceMusics
         public string SongName { get; set; }
         public string Image { get; set; }
         public string MusicFile { get; set; }
-
+        public int Viewed { get; set; }
         public Guid SingerId { get; set; }
         public Singer Singer { get; set; }
 
