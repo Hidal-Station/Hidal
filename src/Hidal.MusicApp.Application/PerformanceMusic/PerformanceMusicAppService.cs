@@ -11,6 +11,10 @@ using Volo.Abp.Guids;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using Volo.Abp;
+using Hidal.MusicApp.Singers;
+using Hidal.MusicApp.DbMigrator.Singers;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hidal.MusicApp.PerformanceMusics
 {
@@ -29,7 +33,9 @@ namespace Hidal.MusicApp.PerformanceMusics
         private readonly IBlobContainer _blobAuthorContainer;
         private readonly IGuidGenerator _guidGenerator;
         private readonly IPerformanceMusicRepository _performanceMusicRepository;
-        public PerformanceMusicAppService(IPerformanceMusicRepository  performanceMusicRepository, IBlobContainerFactory blobPerformanceMusicContainer, IBlobContainerFactory blobSingerContainer, IBlobContainerFactory blobUserContainer, IBlobContainerFactory blobAuthorContainer, IGuidGenerator guidGenerator) : base(performanceMusicRepository)
+        private readonly ISingerRepository _singerRepository;
+
+        public PerformanceMusicAppService(ISingerRepository singerRepository,IPerformanceMusicRepository performanceMusicRepository, IBlobContainerFactory blobPerformanceMusicContainer, IBlobContainerFactory blobSingerContainer, IBlobContainerFactory blobUserContainer, IBlobContainerFactory blobAuthorContainer, IGuidGenerator guidGenerator) : base(performanceMusicRepository)
         {
             _blobPerformanceMusicContainer = blobPerformanceMusicContainer.Create("music");
             _blobSingerContainer = blobSingerContainer.Create("Singer");
@@ -37,8 +43,18 @@ namespace Hidal.MusicApp.PerformanceMusics
             _blobAuthorContainer = blobAuthorContainer.Create("Author");
             _guidGenerator = guidGenerator;
             _performanceMusicRepository = performanceMusicRepository;
+            _singerRepository = singerRepository;
         }
 
+        public async Task<List<PerformanceMusicDto>> GetMusicAsync()
+        {
+            var query = await _performanceMusicRepository.GetQueryableAsync();
+            var listMusic = await query.Include(x => x.Singer).ToListAsync();
+            var listMusic1 = ObjectMapper.Map<List<PerformanceMusic>, List<PerformanceMusicDto>>(listMusic);
+            return ObjectMapper.Map<List<PerformanceMusic>,List<PerformanceMusicDto>>(listMusic);
+
+
+        }
 
         public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile file)
         {
@@ -47,6 +63,29 @@ namespace Hidal.MusicApp.PerformanceMusics
                 var arrFile = file.FileName.Split(".");
                 string fileType = arrFile[arrFile.Length - 1];
                 var fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                int distance = 0;
+                int end = 0;
+                string fileName1 = fileName;
+                string fileName2 = fileName;
+                string songName = "";
+                string singerName = "";
+
+                for (int i =0; i < fileName1.Length; i++)
+                {
+                    if (fileName[i] == '-')
+                    {
+                        distance = i;
+                        continue;
+                    }
+                    if(fileName[i] == '.')
+                    {
+                        end = i;
+                        break;
+                    }
+                }
+                songName = fileName1.Substring(0, distance);
+                singerName = fileName1.Substring(end + 1);
+
 
                 CreateUpdateImageStoreDto newItem = new CreateUpdateImageStoreDto();
                 newItem.FileName = file.FileName;
@@ -54,6 +93,8 @@ namespace Hidal.MusicApp.PerformanceMusics
                 newItem.Size = file.Length;
                 newItem.FullName = file.FileName;
                 newItem.Id = Guid.NewGuid();
+                newItem.SongName = songName;
+                newItem.SingerName = singerName;
 
                 using (var memoryStream = new MemoryStream())
                 {
@@ -70,7 +111,18 @@ namespace Hidal.MusicApp.PerformanceMusics
             }
         }
 
-
-
+        public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicMainFileAsync(IFormFile data)
+        {
+            var ImageStoreDto = await UploadPerformanceMusicFileAsync(data);
+            Singer singer = new Singer();
+            PerformanceMusic performance = new PerformanceMusic();
+            singer.Name = ImageStoreDto.SingerName;
+            var singerReturn = await _singerRepository.InsertAsync(singer);
+            performance.SingerId = singerReturn.Id;
+            performance.MusicFile = ImageStoreDto.Url;
+            performance.SongName = ImageStoreDto.SongName;
+            await _performanceMusicRepository.InsertAsync(performance);
+            return ImageStoreDto;
+        }
     }
 }
