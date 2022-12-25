@@ -54,7 +54,7 @@ namespace Hidal.MusicApp.PerformanceMusics
             return ObjectMapper.Map<List<PerformanceMusic>,List<PerformanceMusicDto>>(listMusic);
         }
 
-        public async Task IncreateViewAsync(Guid id)
+        public async Task IncreaseViewAsync(Guid id)
         {
             var performanceMusic = await _performanceMusicRepository.GetAsync(id);
             if (performanceMusic == null)
@@ -63,6 +63,21 @@ namespace Hidal.MusicApp.PerformanceMusics
             }
             performanceMusic.Viewed += 1;
             await _performanceMusicRepository.UpdateAsync(performanceMusic);
+        }
+
+        public async Task<PerformanceMusicDto> RatingAsync(RatingPerformanceMusicDtos ratingDto)
+        {
+            var performanceMusic = await _performanceMusicRepository.GetAsync(ratingDto.Id);
+            if (performanceMusic == null)
+            {
+                throw new BusinessException("Error");
+            }
+            var numberOfRating = performanceMusic.NumberOfRating + 1;
+            var  ratingAverage = (performanceMusic.ratingAverage+ratingDto.Score)/(numberOfRating);
+            performanceMusic.ratingAverage = ratingAverage;
+            performanceMusic.NumberOfRating = numberOfRating;
+            var newPerformanceMusic = await _performanceMusicRepository.UpdateAsync(performanceMusic);
+            return ObjectMapper.Map<PerformanceMusic, PerformanceMusicDto>(newPerformanceMusic);
         }
 
         public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile file)
