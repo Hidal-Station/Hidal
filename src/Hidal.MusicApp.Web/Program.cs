@@ -27,13 +27,24 @@ public class Program
 
         try
         {
+            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
             Log.Information("Starting web host.");
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("*").AllowAnyHeader().
+                                                          AllowAnyMethod();
+                                  });
+            });
             builder.Host.AddAppSettingsSecretsJson()
                 .UseAutofac()
                 .UseSerilog();
             await builder.AddApplicationAsync<MusicAppWebModule>();
             var app = builder.Build();
+            app.UseCors(MyAllowSpecificOrigins);
             await app.InitializeApplicationAsync();
             await app.RunAsync();
             return 0;
