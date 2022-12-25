@@ -24,6 +24,8 @@ namespace Hidal.MusicApp.PerformanceMusics
 
         Task<List<PerformanceMusicDto>> GetMusicAsync();
 
+        Task IncreateViewAsync(Guid id);
+
         void ViewMusicAsync(Guid id);
     }
 }

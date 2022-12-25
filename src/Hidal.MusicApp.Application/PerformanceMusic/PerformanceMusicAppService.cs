@@ -54,6 +54,17 @@ namespace Hidal.MusicApp.PerformanceMusics
             return ObjectMapper.Map<List<PerformanceMusic>,List<PerformanceMusicDto>>(listMusic);
         }
 
+        public async Task IncreateViewAsync(Guid id)
+        {
+            var performanceMusic = await _performanceMusicRepository.GetAsync(id);
+            if (performanceMusic == null)
+            {
+                throw new BusinessException("Error");
+            }
+            performanceMusic.Viewed += 1;
+            await _performanceMusicRepository.UpdateAsync(performanceMusic);
+        }
+
         public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile file)
         {
             try

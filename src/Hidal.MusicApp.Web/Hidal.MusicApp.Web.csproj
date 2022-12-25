@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Cors" Version="2.2.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
   </ItemGroup>
@@ -50,6 +51,10 @@
     <PackageReference Include="Volo.Abp.Account.Web.OpenIddict" Version="6.0.2" />
     <PackageReference Include="Volo.Abp.TenantManagement.Web" Version="6.0.2" />
     <PackageReference Include="Volo.Abp.SettingManagement.Web" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\UploadFile\host\music\" />
   </ItemGroup>
 
 </Project>
