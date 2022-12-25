@@ -13,6 +13,10 @@ namespace Hidal.MusicApp.PerformanceMusics.Dtos
         public string SingerName { get; set; }
         public string MusicFile { get; set; }
 
+        public float RatingAverage { get; set; }
+
+        public float NumberOfRating { get; set; }
+
         public int Viewed { get; set; }
     }
 }
