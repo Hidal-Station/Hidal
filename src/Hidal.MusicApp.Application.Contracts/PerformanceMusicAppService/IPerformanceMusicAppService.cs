@@ -1,4 +1,3 @@
-using Hidal.MusicApp.Authors.Dtos;
 using Hidal.MusicApp.ImageAppService.Dtos;
 using Hidal.MusicApp.PerformanceMusics.Dtos;
 using Microsoft.AspNetCore.Http;
@@ -24,7 +23,9 @@ namespace Hidal.MusicApp.PerformanceMusics
 
         Task<List<PerformanceMusicDto>> GetMusicAsync();
 
-        Task IncreateViewAsync(Guid id);
+        Task<PerformanceMusicDto> RatingAsync(RatingPerformanceMusicDtos ratingDto);
+
+        Task IncreaseViewAsync(Guid id);
 
         void ViewMusicAsync(Guid id);
     }
