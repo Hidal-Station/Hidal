@@ -4,17 +4,17 @@ using Volo.Abp.Application.Services;
 using Hidal.MusicApp.DbMigrator.PerformanceMusics;
 using Hidal.MusicApp.PerformanceMusics.Dtos;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Volo.Abp.BlobStoring;
 using Hidal.MusicApp.ImageAppService.Dtos;
 using Volo.Abp.Guids;
-using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using Volo.Abp;
 using Hidal.MusicApp.Singers;
 using Hidal.MusicApp.DbMigrator.Singers;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace Hidal.MusicApp.PerformanceMusics
 {
@@ -46,10 +46,10 @@ namespace Hidal.MusicApp.PerformanceMusics
             _singerRepository = singerRepository;
         }
 
-        public async Task<List<PerformanceMusicDto>> GetMusicAsync()
+        public async Task<List<PerformanceMusicDto>> GetMusicAsync(string keyword = "")
         {
             var query = await _performanceMusicRepository.GetQueryableAsync();
-            var listMusic = await query.Include(x => x.Singer).ToListAsync();
+            var listMusic = await query.Include(x => x.Singer).Where(x => x.SongName.Contains(keyword)).ToListAsync();
             var listMusic1 = ObjectMapper.Map<List<PerformanceMusic>, List<PerformanceMusicDto>>(listMusic);
             return ObjectMapper.Map<List<PerformanceMusic>,List<PerformanceMusicDto>>(listMusic);
         }
@@ -73,41 +73,43 @@ namespace Hidal.MusicApp.PerformanceMusics
                 throw new BusinessException("Error");
             }
             var numberOfRating = performanceMusic.NumberOfRating + 1;
-            var  ratingAverage = (performanceMusic.ratingAverage+ratingDto.Score)/(numberOfRating);
+            var  ratingAverage = (performanceMusic.ratingAverage*performanceMusic.NumberOfRating + ratingDto.Score)/(numberOfRating);
             performanceMusic.ratingAverage = ratingAverage;
             performanceMusic.NumberOfRating = numberOfRating;
             var newPerformanceMusic = await _performanceMusicRepository.UpdateAsync(performanceMusic);
             return ObjectMapper.Map<PerformanceMusic, PerformanceMusicDto>(newPerformanceMusic);
         }
 
-        public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile file)
+        public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile fileMusic)
         {
             try
             {
-                var arrFile = file.FileName.Split(".");
-                string fileType = arrFile[arrFile.Length - 1];
-                var fileName = Path.GetFileNameWithoutExtension(file.FileName);
+                var arrFileMusic = fileMusic.FileName.Split(".");
+                string fileTypeMusic = arrFileMusic[arrFileMusic.Length - 1];
+                var fileNameMusic = Path.GetFileNameWithoutExtension(fileMusic.FileName);
+
+
                 int distance = 0;
                 string songName = "";
                 string singerName = "";
-                distance = fileName.IndexOf("-");
-                songName = fileName.Remove(distance);
-                singerName = fileName.Remove(0, distance + 1);
+                distance = fileNameMusic.IndexOf("-");
+                songName = fileNameMusic.Remove(distance);
+                singerName = fileNameMusic.Remove(0, distance + 1);
 
                 CreateUpdateImageStoreDto newItem = new CreateUpdateImageStoreDto();
-                newItem.FileName = file.FileName;
-                newItem.FileType = file.ContentType;
-                newItem.Size = file.Length;
-                newItem.FullName = file.FileName;
-                newItem.Id = Guid.NewGuid();
+                newItem.FileNameMusic = fileMusic.FileName;
+                newItem.FileTypeMusic = fileMusic.ContentType;
+                newItem.SizeMusic = fileMusic.Length;
+                newItem.FullNameMusic = fileMusic.FileName;
+                newItem.IdMusic = Guid.NewGuid();
                 newItem.SongName = songName;
                 newItem.SingerName = singerName;
 
                 using (var memoryStream = new MemoryStream())
                 {
-                    await file.CopyToAsync(memoryStream);
-                    newItem.Url = "/UploadFile/host/music/" + fileName + "-" + newItem.Id.ToString() + '.' + fileType;
-                    await _blobPerformanceMusicContainer.SaveAsync(fileName + "-" + newItem.Id.ToString() + '.' + fileType, memoryStream);
+                    await fileMusic.CopyToAsync(memoryStream);
+                    newItem.Url = "/UploadFile/host/music/" + fileNameMusic + "-" + newItem.IdMusic.ToString() + '.' + fileTypeMusic;
+                    await _blobPerformanceMusicContainer.SaveAsync(fileNameMusic + "-" + newItem.IdMusic.ToString() + '.' + fileTypeMusic, memoryStream);
                 }
                 return newItem;
 
@@ -118,9 +120,41 @@ namespace Hidal.MusicApp.PerformanceMusics
             }
         }
 
-        public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicMainFileAsync(IFormFile data)
+        public async Task<CreateUpdateImageStoreDto> UploadPerformanceImageFileAsync(IFormFile fileImage)
         {
-            var ImageStoreDto = await UploadPerformanceMusicFileAsync(data);
+            var arrFileImage = fileImage.FileName.Split(".");
+            string fileTypeImage = arrFileImage[arrFileImage.Length - 1];
+            var fileNameImage = Path.GetFileNameWithoutExtension(fileImage.FileName);
+
+            CreateUpdateImageStoreDto newItem = new CreateUpdateImageStoreDto();
+            newItem.FileNameImage = fileImage.FileName;
+            newItem.FileTypeImage = fileImage.ContentType;
+            newItem.SizeImage = fileImage.Length;
+            newItem.FullNameImage = fileImage.FileName;
+            newItem.IdImage = Guid.NewGuid();
+
+            using (var memoryStream1 = new MemoryStream())
+            {
+                await fileImage.CopyToAsync(memoryStream1);
+                newItem.UrlImage = "/UploadFile/host/music/" + fileNameImage + "-" + newItem.IdImage.ToString() + '.' + fileTypeImage;
+                await _blobPerformanceMusicContainer.SaveAsync(fileNameImage + "-" + newItem.IdImage.ToString() + '.' + fileTypeImage, memoryStream1);
+            }
+
+            return newItem;
+        }
+
+        public async Task<CreateUpdateImageStoreDto> UploadPerformanceMusicMainFileAsync(IFormFile music,IFormFile image = null)
+        {
+            var ImageStoreDto = await UploadPerformanceMusicFileAsync(music);
+            if(image != null)
+            {
+                var ImageOfMusic = await UploadPerformanceImageFileAsync(image);
+                ImageStoreDto.FileNameImage = ImageOfMusic.FileNameImage;
+                ImageStoreDto.FileTypeImage = ImageOfMusic.FileTypeImage;
+                ImageStoreDto.SizeImage = ImageOfMusic.SizeImage;
+                ImageStoreDto.FullNameImage = ImageOfMusic.FullNameImage;
+                ImageStoreDto.UrlImage = ImageOfMusic.UrlImage;
+            }
             Singer singer = new Singer();
             PerformanceMusic performance = new PerformanceMusic();
             singer.Name = ImageStoreDto.SingerName;
@@ -128,6 +162,7 @@ namespace Hidal.MusicApp.PerformanceMusics
             performance.SingerId = singerReturn.Id;
             performance.MusicFile = ImageStoreDto.Url;
             performance.SongName = ImageStoreDto.SongName;
+            performance.Image = ImageStoreDto.UrlImage;
             await _performanceMusicRepository.InsertAsync(performance);
             return ImageStoreDto;
         }
@@ -143,9 +178,5 @@ namespace Hidal.MusicApp.PerformanceMusics
             await _performanceMusicRepository.UpdateAsync(performanceMusic);
         }
 
-        public void ViewMusicAsync(Guid id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

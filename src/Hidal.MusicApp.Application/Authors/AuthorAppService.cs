@@ -28,9 +28,5 @@ namespace Hidal.MusicApp.Authors
             _performanceMusicApp = performanceMusicAppService;
         }
 
-        public async Task<CreateUpdateImageStoreDto> uploadTest(IFormFile file)
-        {
-            return await _performanceMusicApp.UploadPerformanceMusicFileAsync(file);
-        }
     }
 }

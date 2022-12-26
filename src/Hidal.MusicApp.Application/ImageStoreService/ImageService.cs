@@ -48,16 +48,16 @@ namespace Hidal.MusicApp.ImageStoreService
                 var fileName = Path.GetFileNameWithoutExtension(file.FileName);
 
                 CreateUpdateImageStoreDto newItem = new CreateUpdateImageStoreDto();
-                newItem.FileName = file.FileName;
-                newItem.FileType = file.ContentType;
-                newItem.Size = file.Length;
-                newItem.FullName = file.FileName;
-                newItem.Id = Guid.NewGuid();
+                newItem.FileNameMusic = file.FileName;
+                newItem.FileTypeMusic = file.ContentType;
+                newItem.SizeMusic = file.Length;
+                newItem.FullNameMusic = file.FileName;
+                newItem.IdMusic = Guid.NewGuid();
 
                 using (var memoryStream = new MemoryStream())
                 {
                     await file.CopyToAsync(memoryStream);
-                    newItem.Url = "/UploadFile/host/music/" + fileName + "-" + newItem.Id.ToString() + '.' + fileType;
+                    newItem.Url = "/UploadFile/host/music/" + fileName + "-" + newItem.IdMusic.ToString() + '.' + fileType;
                     await _blobPerformanceMusicContainer.SaveAsync("dwa", memoryStream);
                 }
                 return newItem;
