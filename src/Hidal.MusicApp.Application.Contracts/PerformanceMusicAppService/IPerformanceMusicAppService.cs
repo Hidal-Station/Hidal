@@ -17,16 +17,17 @@ namespace Hidal.MusicApp.PerformanceMusics
           CreateUpdatePerformanceMusicDto
           >
     {
-        Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile file);
+        Task<CreateUpdateImageStoreDto> UploadPerformanceMusicFileAsync(IFormFile fileImage);
 
-        Task<CreateUpdateImageStoreDto> UploadPerformanceMusicMainFileAsync(IFormFile data);
+        Task<CreateUpdateImageStoreDto> UploadPerformanceMusicMainFileAsync(IFormFile fileMusic, IFormFile fileImage);
 
-        Task<List<PerformanceMusicDto>> GetMusicAsync();
+        Task<List<PerformanceMusicDto>> GetMusicAsync(string keyword);
+
+        Task<CreateUpdateImageStoreDto> UploadPerformanceImageFileAsync(IFormFile fileImage);
 
         Task<PerformanceMusicDto> RatingAsync(RatingPerformanceMusicDtos ratingDto);
 
         Task IncreaseViewAsync(Guid id);
 
-        void ViewMusicAsync(Guid id);
     }
 }

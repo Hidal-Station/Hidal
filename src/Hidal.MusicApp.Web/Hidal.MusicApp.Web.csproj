@@ -53,8 +53,4 @@
     <PackageReference Include="Volo.Abp.SettingManagement.Web" Version="6.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\UploadFile\host\music\" />
-  </ItemGroup>
-
 </Project>
